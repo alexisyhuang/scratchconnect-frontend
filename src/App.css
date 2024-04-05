@@ -14,14 +14,14 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #ffffff;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: rgb(35, 35, 35);
 }
 
 .App-link {
@@ -35,4 +35,67 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.project-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.project-card {
+  width: 21%; /* Each project card takes up 25% of the container width to fit 4 cards per row */
+  padding: 20px;
+  margin: 10px;
+  box-sizing: border-box; /* Include padding in the width calculation */
+  border: 1px solid #ccc; /* Add a border around each card */
+  border-radius: 5px; /* Add rounded corners to the border */
+  background-color: #fff; /* Set background color to white */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow effect */
+}
+
+.project-details {
+  text-align: center; /* Center-align the project title */
+  font-size: 14px; /* Set the font size of the title */
+}
+
+.project-title {
+  font-size: 14px; /* Set the font size of the title */
+}
+
+.keyword-button {
+  background-color: #c8c2cd; /* Dark purple background color */
+  color: #000000; /* White text color */
+  border: none; /* Remove border */
+  border-radius: 20px; /* Add rounded corners */
+  padding: 10px 20px; /* Add padding */
+  margin: 5px; /* Add margin for spacing */
+  font-size: 16px; /* Increase font size */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.keyword-button:hover {
+  background-color: #7f15d1; /* Darker purple background color on hover */
+  color: white;
+}
+
+.keyword-button-active {
+  background-color: #7f15d1; /* Darker purple background color when clicked */
+  color: white;
+  border: none; /* Remove border */
+  border-radius: 20px; /* Add rounded corners */
+  padding: 10px 20px; /* Add padding */
+  margin: 5px; /* Add margin for spacing */
+  font-size: 16px; /* Increase font size */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.refresh-button {
+  background-color: orange;
+  color:#000000;
+  border: none; /* Remove border */
+  border-radius: 20px; /* Add rounded corners */
+  padding: 10px 20px; /* Add padding */
+  margin: 5px; /* Add margin for spacing */
+  font-size: 16px; /* Increase font size */
+  cursor: pointer; /* Change cursor to pointer on hover */
 }
