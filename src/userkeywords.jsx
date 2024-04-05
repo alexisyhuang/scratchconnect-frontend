@@ -17,10 +17,13 @@ function UserKeywords() {
     await handleUsernameSubmit();
   };
 
+  const hostname = "https://scratchconnect-server.vercel.app/";
+  // http://localhost:8081
+
   const handleUsernameSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(`http://localhost:8081/?m=${username}`);
+      const response = await axios.get(`${hostname}?m=${username}`);
       const userProjects = response.data.projects;
       const userBio = response.data.bio;
       const workingOn = response.data.workingOn;
@@ -28,8 +31,6 @@ function UserKeywords() {
       console.log(userProjects);
       console.log(workingOn);
       console.log(userBio);
-      console.log("key:");
-      console.log(process.env.REACT_APP_OPENAI_API_KEY);
       const projectsList = userProjects.map(project => project.title).join(', ');
       const openai = new OpenAI({
         apiKey: process.env.REACT_APP_OPENAI_API_KEY || "",
@@ -53,7 +54,7 @@ function UserKeywords() {
 
   const handleKeywordClick = async (keyword) => {
     try {
-      const response = await axios.get(`http://localhost:8081/search?keyword=${keyword}`);
+      const response = await axios.get(`${hostname}search?keyword=${keyword}`);
       const keywordProjects = response.data;
       setSearchProjects(keywordProjects);
   
