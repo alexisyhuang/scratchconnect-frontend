@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import OpenAI from 'openai';
 import axios from 'axios';
 
@@ -7,45 +7,78 @@ function UserKeywords() {
   const [projects, setProjects] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [searchprojects, setSearchProjects] = useState([]);
-  const [activeKeyword, setActiveKeyword] = useState(null); // State to store active keyword
-  const chatCompletion = useState(null);
-  const chatGptResponse = useState(null);
-  const keywordList = useState(null);
+  const [activeKeyword, setActiveKeyword] = useState(null);
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
+  const [selectedSettings, setSelectedSettings] = useState({
+    bio: true,
+    workingOn: true,
+    projectsList: true,
+  });
+  const [crazyMode, setCrazyMode] = useState(false);
+
+
+  useEffect(() => {
+    handleUsernameSubmit();
+  }, []);
 
   const handleRefreshClick = async (e) => {
-    e.preventDefault(); // Prevent the default button click behavior
+    e.preventDefault();
     await handleUsernameSubmit();
   };
 
-  const hostname = "https://scratchconnect-server.vercel.app/";
-  // http://localhost:8081
+  const handleSettingsClick = () => {
+    setShowSettingsPanel(true);
+  };
+
+  const handleSaveSettingsClick = async () => {
+    if (!(selectedSettings.bio || selectedSettings.workingOn || selectedSettings.projectsList)) {
+      alert('Please select at least one setting.');
+      return;
+    }
+
+    setShowSettingsPanel(false);
+    await handleUsernameSubmit();
+  };
 
   const handleUsernameSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     try {
-      const response = await axios.get(`${hostname}?m=${username}`);
+      const response = await axios.get(`https://scratchconnect-server.vercel.app/?m=${username}`);
       const userProjects = response.data.projects;
       const userBio = response.data.bio;
-      const workingOn = response.data.workingOn;
+      const workingon = response.data.workingon;
+      console.log(workingon);
       setProjects(userProjects);
-      console.log(userProjects);
-      console.log(workingOn);
-      console.log(userBio);
-      const projectsList = userProjects.map(project => project.title).join(', ');
+
+      const selectedEntries = [];
+      if (selectedSettings.bio) selectedEntries.push(`this user has this bio: ${userBio}`);
+      if (selectedSettings.workingOn) selectedEntries.push(`is currently working on ${workingon}`);
+      if (selectedSettings.projectsList) {
+        const projectsList = userProjects.map((project) => project.title).join(', ');
+        selectedEntries.push(`and created these projects: ${projectsList}`);
+      }
+
       const openai = new OpenAI({
-        apiKey: process.env.REACT_APP_OPENAI_API_KEY || "",
-        dangerouslyAllowBrowser: true
+        apiKey: process.env.REACT_APP_OPENAI_API_KEY || '',
+        dangerouslyAllowBrowser: true,
       });
-      const messages = [{
-        role: 'user',
-        content: `Given that this user has this bio: ${userBio}, is currently working on ${workingOn}, and created these projects, please return a list of 5-8 comma separated keywords that represent the user's interests. Please do not include the keywords "scratch" or "project". ${projectsList}`
-      }];
+      let promptEnding = '';
+      if (crazyMode) {
+        promptEnding = 'Include some keywords that are are not really related to the user\'s interests which might help them explore something new.';
+      }
+
+      const messages = [
+        {
+          role: 'user',
+          content: `Given that ${selectedEntries.join(', ')}, please return a list of 5-8 comma separated keywords that represent the user's interests. Please do not include the keywords "scratch" or "project". ${promptEnding}`,
+        },
+      ];
       const chatGptResponse = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo', // Make sure this model is appropriate for your use case
+        model: 'gpt-3.5-turbo',
         messages: messages,
       });
       const keywords = chatGptResponse.choices[0].message.content;
-      const keywordList = keywords.split(',').map(keyword => keyword.trim());
+      const keywordList = keywords.split(',').map((keyword) => keyword.trim());
       setKeywords(keywordList);
     } catch (error) {
       console.error('Error fetching user projects and generating keywords:', error);
@@ -54,20 +87,26 @@ function UserKeywords() {
 
   const handleKeywordClick = async (keyword) => {
     try {
-      const response = await axios.get(`${hostname}search?keyword=${keyword}`);
+      const response = await axios.get(`https://scratchconnect-server.vercel.app/search?keyword=${keyword}`);
       const keywordProjects = response.data;
       setSearchProjects(keywordProjects);
-  
-      // Update active keyword only if it's different from the currently active one
+
       if (activeKeyword !== keyword) {
         setActiveKeyword(keyword);
-        console.log("Active keyword:", keyword);
       }
     } catch (error) {
       console.error('Error fetching projects for keyword:', error);
     }
   };
-  
+
+  const handleSettingToggle = (setting) => {
+    setSelectedSettings({ ...selectedSettings, [setting]: !selectedSettings[setting] });
+  };
+
+  const handleCrazyModeToggle = () => {
+    setCrazyMode(!crazyMode);
+  };
+
   return (
     <div>
       <form onSubmit={handleUsernameSubmit}>
@@ -89,17 +128,73 @@ function UserKeywords() {
             <div>
               {keywords.map((keyword, index) => (
                 <button
-                  className={activeKeyword === keyword ? "keyword-button-active" : "keyword-button"}
+                  className={activeKeyword === keyword ? 'keyword-button-active' : 'keyword-button'}
                   key={index}
-                  onClick={() => handleKeywordClick(keyword)}>
+                  onClick={() => handleKeywordClick(keyword)}
+                >
                   {keyword}
                 </button>
               ))}
-              <button className="refresh-button" onClick={handleUsernameSubmit}>Refresh</button>
+              <button className="refresh-button" onClick={handleRefreshClick}>
+                Refresh
+              </button>
+              <button className="purple-button" onClick={handleSettingsClick}>
+                Settings
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {showSettingsPanel && (
+        <div className="settings-panel">
+          <h2>Settings</h2>
+          <h6>Select what data you want to use to generate keywords:</h6>
+          <div>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedSettings.bio}
+                onChange={() => handleSettingToggle('bio')}
+              />
+              My Bio
+            </label>
+          </div>
+          <div>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedSettings.workingOn}
+                onChange={() => handleSettingToggle('workingOn')}
+              />
+              What I'm Working On
+            </label>
+          </div>
+          <div>
+            <label>
+              <input
+                type="checkbox"
+                checked={selectedSettings.projectsList}
+                onChange={() => handleSettingToggle('projectsList')}
+              />
+              Projects I've Created
+            </label>
+          </div>
+          <div>
+            <label>
+              <input
+                type="checkbox"
+                checked={crazyMode}
+                onChange={handleCrazyModeToggle}
+              />
+              Crazy Mode
+            </label>
+          </div>
+          <button className="purple-button" onClick={handleSaveSettingsClick}>
+            Save changes
+          </button>
+        </div>
+      )}
 
       <div>
         <h2>Projects</h2>

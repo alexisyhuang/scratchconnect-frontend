@@ -43,59 +43,70 @@
 }
 
 .project-card {
-  width: 21%; /* Each project card takes up 25% of the container width to fit 4 cards per row */
+  width: 21%;
   padding: 20px;
   margin: 10px;
-  box-sizing: border-box; /* Include padding in the width calculation */
-  border: 1px solid #ccc; /* Add a border around each card */
-  border-radius: 5px; /* Add rounded corners to the border */
-  background-color: #fff; /* Set background color to white */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow effect */
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .project-details {
-  text-align: center; /* Center-align the project title */
-  font-size: 14px; /* Set the font size of the title */
+  text-align: center;
+  font-size: 14px;
 }
 
 .project-title {
-  font-size: 14px; /* Set the font size of the title */
+  font-size: 14px;
 }
 
 .keyword-button {
-  background-color: #c8c2cd; /* Dark purple background color */
-  color: #000000; /* White text color */
-  border: none; /* Remove border */
-  border-radius: 20px; /* Add rounded corners */
-  padding: 10px 20px; /* Add padding */
-  margin: 5px; /* Add margin for spacing */
-  font-size: 16px; /* Increase font size */
-  cursor: pointer; /* Change cursor to pointer on hover */
+  background-color: #c8c2cd;
+  color: #000000;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .keyword-button:hover {
-  background-color: #7f15d1; /* Darker purple background color on hover */
+  background-color: #7f15d1;
   color: white;
 }
 
 .keyword-button-active {
-  background-color: #7f15d1; /* Darker purple background color when clicked */
+  background-color: #7f15d1;
   color: white;
-  border: none; /* Remove border */
-  border-radius: 20px; /* Add rounded corners */
-  padding: 10px 20px; /* Add padding */
-  margin: 5px; /* Add margin for spacing */
-  font-size: 16px; /* Increase font size */
-  cursor: pointer; /* Change cursor to pointer on hover */
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.purple-button{
+  background-color: #7f15d1;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .refresh-button {
   background-color: orange;
   color:#000000;
-  border: none; /* Remove border */
-  border-radius: 20px; /* Add rounded corners */
-  padding: 10px 20px; /* Add padding */
-  margin: 5px; /* Add margin for spacing */
-  font-size: 16px; /* Increase font size */
-  cursor: pointer; /* Change cursor to pointer on hover */
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
 }
