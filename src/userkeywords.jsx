@@ -15,7 +15,8 @@ function UserKeywords() {
     projectsList: true,
   });
   const [crazyMode, setCrazyMode] = useState(false);
-
+  // const hostname = "http://localhost:8081";
+  const hostname = "https://scratchconnect-server.vercel.app";
 
   useEffect(() => {
     handleUsernameSubmit();
@@ -27,7 +28,7 @@ function UserKeywords() {
   };
 
   const handleSettingsClick = () => {
-    setShowSettingsPanel(true);
+    setShowSettingsPanel(!showSettingsPanel);
   };
 
   const handleSaveSettingsClick = async () => {
@@ -43,7 +44,9 @@ function UserKeywords() {
   const handleUsernameSubmit = async (e) => {
     if (e) e.preventDefault();
     try {
-      const response = await axios.get(`https://scratchconnect-server.vercel.app/?m=${username}`);
+      const response = await axios.get(`${hostname}/?m=${username}`);
+      // if this returns an error, then use this random response data object that i will specify
+      // create an if else statement, checking to see if it fails and if it does just set keywords to a preset list
       const userProjects = response.data.projects;
       const userBio = response.data.bio;
       const workingon = response.data.workingon;
@@ -64,7 +67,7 @@ function UserKeywords() {
       });
       let promptEnding = '';
       if (crazyMode) {
-        promptEnding = 'Include some keywords that are are not really related to the user\'s interests which might help them explore something new.';
+        promptEnding = 'Among the 5-8 comma separated keywords, include some keywords that are are not really related to the user\'s interests which might help them explore something new.';
       }
 
       const messages = [
@@ -87,7 +90,7 @@ function UserKeywords() {
 
   const handleKeywordClick = async (keyword) => {
     try {
-      const response = await axios.get(`https://scratchconnect-server.vercel.app/search?keyword=${keyword}`);
+      const response = await axios.get(`${hostname}/search?keyword=${keyword}`);
       const keywordProjects = response.data;
       setSearchProjects(keywordProjects);
 
