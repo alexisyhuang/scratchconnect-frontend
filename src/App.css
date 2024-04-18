@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif;
 }
 
 .App-logo {
@@ -63,9 +64,9 @@
 }
 
 .keyword-button {
-  background-color: #c8c2cd;
-  color: #000000;
-  border: none;
+  border: 1px solid hsla(260, 60%, 60%, 1);
+      background-color: hsla(0, 100%, 100%, 1);
+      color: hsla(260, 60%, 60%, 1);
   border-radius: 20px;
   padding: 10px 20px;
   margin: 5px;
@@ -74,13 +75,13 @@
 }
 
 .keyword-button:hover {
-  background-color: #7f15d1;
-  color: white;
+  background-color: hsla(260, 60%, 60%, .25);
 }
 
 .keyword-button-active {
-  background-color: #7f15d1;
-  color: white;
+  opacity: 1;
+  background-color: hsla(260, 60%, 60%, 1);
+  color: hsla(0, 100%, 100%, 1);
   border: none;
   border-radius: 20px;
   padding: 10px 20px;
@@ -90,9 +91,9 @@
 }
 
 .purple-button{
-  background-color: #7f15d1;
-  color: white;
-  border: none;
+  border: 1px solid hsla(260, 60%, 60%, 1);
+      background-color: hsla(0, 100%, 100%, 1);
+      color: hsla(260, 60%, 60%, 1);
   border-radius: 20px;
   padding: 10px 20px;
   margin: 5px;
@@ -109,4 +110,122 @@
   margin: 5px;
   font-size: 16px;
   cursor: pointer;
+}
+
+.seeinside-button {
+  background: none;
+  border: none;
+  padding: 0; /* Remove padding */
+  cursor: pointer;
+  margin-left: 200px;
+}
+
+.settings-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 1000;
+}
+
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.settings-popup h6 {
+  margin-top: 10px; /* Remove top margin */
+  margin-bottom: 5px; /* Reduce bottom margin */
+  font-size: 20px; /* Reduce font size */
+}
+
+.settings-popup label {
+  font-size: 20px; /* Reduce font size of labels */
+}
+
+.categories {
+  justify-content: flex-start;
+
+  li {
+      border: 1px solid hsla(260, 60%, 60%, 1);
+      background-color: hsla(0, 100%, 100%, 1);
+      color: hsla(260, 60%, 60%, 1);
+
+      &.active {
+          opacity: 1;
+          background-color: hsla(260, 60%, 60%, 1);
+          color: hsla(0, 100%, 100%, 1);
+      }
+
+      &:active {
+          padding: .75em 1.5em;
+      }
+
+      &:hover {
+          background-color: hsla(260, 60%, 60%, .25);
+      }
+      
+      &.active:hover {
+          background-color: hsla(260, 46%, 54%, 1);
+      }
+  }
+}
+
+.project-grid{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.connect-header {
+  background-color: #246abf;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.connect-header h2 {
+  color: white;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+}
+
+.checklist-item label {
+  display: flex;
+  align-items: center;
+}
+
+.checklist-item input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+.info-icon {
+  margin-left: auto;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.info-icon:hover::after {
+  content: attr(title);
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 14px;
+  z-index: 999;
+  white-space: pre-wrap; /* Allow wrapping */
+  max-width: 500px; /* Adjust as needed */
+  word-wrap: break-word;
 }

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import OpenAI from 'openai';
 import axios from 'axios';
+import seeinside from './images/see_inside.png';
+import scratchcatrec1 from './images/scratchcatrec1.png';
+import scratchcatrec2 from './images/scratchcatrec2.png';
+
 
 function UserKeywords() {
   const [username, setUsername] = useState('');
@@ -18,9 +22,17 @@ function UserKeywords() {
   // const hostname = "http://localhost:8081";
   const hostname = "https://scratchconnect-server.vercel.app";
 
+  const [userBio, setUserBio] = useState('');
+  const [workingon, setWorkingon] = useState('');
+  const [userProjects, setUserProjects] = useState([]);
+  const [projectsList, setProjectsList] = useState([]);
+
   useEffect(() => {
-    handleUsernameSubmit();
-  }, []);
+    // Check if username is not empty before calling handleUsernameSubmit
+    if (username !== '') {
+      handleUsernameSubmit();
+    }
+  }, [username]);
 
   const handleRefreshClick = async (e) => {
     e.preventDefault();
@@ -47,9 +59,9 @@ function UserKeywords() {
       const response = await axios.get(`${hostname}/?m=${username}`);
       // if this returns an error, then use this random response data object that i will specify
       // create an if else statement, checking to see if it fails and if it does just set keywords to a preset list
-      const userProjects = response.data.projects;
-      const userBio = response.data.bio;
-      const workingon = response.data.workingon;
+      setUserProjects(response.data.projects);
+      setUserBio(response.data.bio);
+      setWorkingon(response.data.workingon);
       console.log(workingon);
       setProjects(userProjects);
 
@@ -57,7 +69,8 @@ function UserKeywords() {
       if (selectedSettings.bio) selectedEntries.push(`this user has this bio: ${userBio}`);
       if (selectedSettings.workingOn) selectedEntries.push(`is currently working on ${workingon}`);
       if (selectedSettings.projectsList) {
-        const projectsList = userProjects.map((project) => project.title).join(', ');
+        setProjectsList(userProjects.map((project) => `title: ${project.title}, description: ${project.description}, instructions: ${project.instructions}`).join('\n'));
+
         selectedEntries.push(`and created these projects: ${projectsList}`);
       }
 
@@ -73,7 +86,7 @@ function UserKeywords() {
       const messages = [
         {
           role: 'user',
-          content: `Given that ${selectedEntries.join(', ')}, please return a list of 5-8 comma separated keywords that represent the user's interests. Please do not include the keywords "scratch" or "project". ${promptEnding}`,
+          content: `Given that ${selectedEntries.join(', ')}, please return a list of 5-8 comma separated keywords that represent the user's interests. Please do not include the keywords "scratch" or "project". ${promptEnding} Please remember to ONLY return 5-8 keywords in a comma-separated list.`,
         },
       ];
       const chatGptResponse = await openai.chat.completions.create({
@@ -110,6 +123,10 @@ function UserKeywords() {
     setCrazyMode(!crazyMode);
   };
 
+  const handleSeeInsideClick = () => {
+    setShowSettingsPanel(!showSettingsPanel);
+  };
+
   return (
     <div>
       <form onSubmit={handleUsernameSubmit}>
@@ -125,7 +142,9 @@ function UserKeywords() {
       </form>
 
       <div>
-        <h2>Scratch Connect</h2>
+      <div className="connect-header">
+        <h2>Connect</h2>
+      </div>
         <div>
           {keywords.length > 0 && (
             <div>
@@ -141,8 +160,11 @@ function UserKeywords() {
               <button className="refresh-button" onClick={handleRefreshClick}>
                 Refresh
               </button>
-              <button className="purple-button" onClick={handleSettingsClick}>
+              {/*<button className="purple-button" onClick={handleSettingsClick}>
                 Settings
+              </button>*/}
+              <button className="seeinside-button" onClick={handleSeeInsideClick}>
+                <img src={seeinside} alt="See Inside" style={{ height: '40px', width: 'auto', verticalAlign: 'middle'}} />
               </button>
             </div>
           )}
@@ -150,54 +172,74 @@ function UserKeywords() {
       </div>
 
       {showSettingsPanel && (
-        <div className="settings-panel">
-          <h2>Settings</h2>
-          <h6>Select what data you want to use to generate keywords:</h6>
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectedSettings.bio}
-                onChange={() => handleSettingToggle('bio')}
-              />
-              My Bio
-            </label>
-          </div>
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectedSettings.workingOn}
-                onChange={() => handleSettingToggle('workingOn')}
-              />
-              What I'm Working On
-            </label>
-          </div>
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectedSettings.projectsList}
-                onChange={() => handleSettingToggle('projectsList')}
-              />
-              Projects I've Created
-            </label>
-          </div>
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={crazyMode}
-                onChange={handleCrazyModeToggle}
-              />
-              Crazy Mode
-            </label>
-          </div>
-          <button className="purple-button" onClick={handleSaveSettingsClick}>
-            Save changes
-          </button>
+  <div>
+    <div className="settings-overlay" onClick={handleSeeInsideClick}></div>
+    <div className="settings-popup">
+      <h6>Select what information you want to use to generate keywords:</h6>
+      <div className="checklist-item">
+        <label>
+          <input
+            type="checkbox"
+            checked={selectedSettings.bio}
+            onChange={() => handleSettingToggle('bio')}
+          />
+          My Bio
+          <span className="info-icon" title={userBio}>﹖</span>
+        </label>
+      </div>
+      <div className="checklist-item">
+        <label>
+          <input
+            type="checkbox"
+            checked={selectedSettings.workingOn}
+            onChange={() => handleSettingToggle('workingOn')}
+          />
+          What I'm Working On
+          <span className="info-icon" title={workingon}>﹖</span>
+        </label>
+      </div>
+      <div className="checklist-item">
+        <label>
+          <input
+            type="checkbox"
+            checked={selectedSettings.projectsList}
+            onChange={() => handleSettingToggle('projectsList')}
+          />
+          Projects I've Created
+          <span className="info-icon" title={JSON.stringify(projectsList)}>﹖</span>
+        </label>
+      </div>
+      <h6>Select the checkbox below to enable crazy mode!</h6>
+      <div className="checklist-item">
+        <label>
+          <input
+            type="checkbox"
+            checked={crazyMode}
+            onChange={handleCrazyModeToggle}
+          />
+          Crazy Mode
+          <span className="info-icon" title="This mode is intended to give you suggestions to explore new things!">﹖</span>
+        </label>
+      </div>
+      <div className="crazy-mode-image-container">
+          <a href="https://en.wikipedia.org/wiki/Recommender_system" target="_blank" rel="noopener noreferrer">
+            <img
+              className="crazy-mode-image"
+              src={scratchcatrec1}
+              alt="Scratch Cat"
+              onMouseOver={e => (e.currentTarget.src = scratchcatrec2)}
+              onMouseOut={e => (e.currentTarget.src = scratchcatrec1)}
+              style={{ width: '300px'}} // Adjust width and height here
+            />
+          </a>
         </div>
-      )}
+      <button className="purple-button" onClick={handleSaveSettingsClick}>
+        Save changes
+      </button>
+    </div>
+  </div>
+)}
+
 
       <div>
         <h2>Projects</h2>
