@@ -27,12 +27,12 @@ function UserKeywords() {
   const [userProjects, setUserProjects] = useState([]);
   const [projectsList, setProjectsList] = useState([]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     // Check if username is not empty before calling handleUsernameSubmit
     if (username !== '') {
       handleUsernameSubmit();
     }
-  }, [username]);
+  }, [username]); */
 
   const handleRefreshClick = async (e) => {
     e.preventDefault();
@@ -54,9 +54,11 @@ function UserKeywords() {
   };
 
   const handleUsernameSubmit = async (e) => {
+    console.log(username);
     if (e) e.preventDefault();
     try {
       const response = await axios.get(`${hostname}/?m=${username}`);
+      console.log(response.data.bio);
       // if this returns an error, then use this random response data object that i will specify
       // create an if else statement, checking to see if it fails and if it does just set keywords to a preset list
       setUserProjects(response.data.projects);
@@ -65,7 +67,7 @@ function UserKeywords() {
       console.log(workingon);
       setProjects(userProjects);
 
-      const selectedEntries = [];
+      /* const selectedEntries = [];
       if (selectedSettings.bio) selectedEntries.push(`this user has this bio: ${userBio}`);
       if (selectedSettings.workingOn) selectedEntries.push(`is currently working on ${workingon}`);
       if (selectedSettings.projectsList) {
@@ -80,26 +82,74 @@ function UserKeywords() {
       });
       let promptEnding = '';
       if (crazyMode) {
-        promptEnding = 'Among the 5-8 comma separated keywords, include some keywords that are are not really related to the user\'s interests which might help them explore something new.';
+        promptEnding = 'Among the 5-8 comma separated keywords, make sure to include some keywords that are NOT directly related to the user\'s interests but you still think they might enjoy.';
       }
 
       const messages = [
         {
           role: 'user',
-          content: `Given that ${selectedEntries.join(', ')}, please return a list of 5-8 comma separated keywords that represent the user's interests. Please do not include the keywords "scratch" or "project". ${promptEnding} Please remember to ONLY return 5-8 keywords in a comma-separated list.`,
+          content: `Given that ${selectedEntries.join(', ')}, please return a list of 5-8 comma separated keywords that represent the user's interests. ${promptEnding} Please do not include the keywords "scratch", "project","exploration", or "explore". Please remember to ONLY return 5-8 keywords in a comma-separated list, in this format: keyword1, keyword2, keyword3, ....`,
         },
       ];
       const chatGptResponse = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: messages,
       });
-      const keywords = chatGptResponse.choices[0].message.content;
-      const keywordList = keywords.split(',').map((keyword) => keyword.trim());
-      setKeywords(keywordList);
+      const keywordResponse = chatGptResponse.choices[0].message.content;
+      // keywords = keywordResponse.split(',').map((keyword) => keyword.trim());
+      setKeywords(keywordResponse.split(',').map((keyword) => keyword.trim()));
+    */
     } catch (error) {
       console.error('Error fetching user projects and generating keywords:', error);
     }
   };
+
+  useEffect(() => {
+    console.log(userProjects);
+    console.log(userBio);
+    console.log(workingon);
+    if (userBio === '' && workingon === '' && userProjects.length === 0) {
+      return; // Exit useEffect without executing further code
+    }
+    const generateKeywords = async () => {
+      const selectedEntries = [];
+      if (selectedSettings.bio) selectedEntries.push(`this user has this bio: ${userBio}`);
+      if (selectedSettings.workingOn) selectedEntries.push(`is currently working on ${workingon}`);
+      if (selectedSettings.projectsList) {
+        setProjectsList(userProjects.map((project) => `title: ${project.title}, description: ${project.description}, instructions: ${project.instructions}`).join('\n'));
+        selectedEntries.push(`and created these projects: ${projectsList}`);
+      }
+  
+      const openai = new OpenAI({
+        apiKey: process.env.REACT_APP_OPENAI_API_KEY || '',
+        dangerouslyAllowBrowser: true,
+      });
+      let promptEnding = '';
+      if (crazyMode) {
+        promptEnding = 'Among the 5-8 comma separated keywords, make sure to include some keywords that are NOT directly related to the user\'s interests but you still think they might enjoy.';
+      }
+  
+      const messages = [
+        {
+          role: 'user',
+          content: `Given that ${selectedEntries.join(', ')}, please return a list of 5-8 comma separated keywords that represent the user's interests. ${promptEnding} Please do not include the keywords "scratch", "project","exploration", or "explore". Please remember to ONLY return 5-8 keywords in a comma-separated list, in this format: keyword1, keyword2, keyword3, ....`,
+        },
+      ];
+      try {
+        const chatGptResponse = await openai.chat.completions.create({
+          model: 'gpt-3.5-turbo',
+          messages: messages,
+        });
+        const keywordResponse = chatGptResponse.choices[0].message.content;
+        setKeywords(keywordResponse.split(',').map((keyword) => keyword.trim()));
+      } catch (error) {
+        console.error('Error generating keywords:', error);
+      }
+    };
+  
+    generateKeywords(); // Call the function to generate keywords
+  
+  }, [userProjects, userBio, workingon]);
 
   const handleKeywordClick = async (keyword) => {
     try {

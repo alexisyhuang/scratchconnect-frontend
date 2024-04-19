@@ -102,8 +102,8 @@
 }
 
 .refresh-button {
-  background-color: orange;
-  color:#000000;
+  background-color: #246abf;
+  color:white;
   border: none;
   border-radius: 20px;
   padding: 10px 20px;
@@ -190,6 +190,7 @@
   background-color: #246abf;
   padding: 10px;
   margin: 10px 0;
+  width: 100vw;
 }
 
 .connect-header h2 {
