@@ -230,3 +230,65 @@
   max-width: 500px; /* Adjust as needed */
   word-wrap: break-word;
 }
+
+/*accordion styles below*/
+/* CSS for Accordion */
+.accordion {
+  margin-bottom: 15px;
+}
+
+.accordion-button {
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  padding: 10px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+}
+
+.accordion-button:hover {
+  background-color: #ddd;
+}
+
+.accordion-panel {
+  padding: 10px;
+  display: none;
+  overflow-y: auto; /* Enable vertical scrollbar if content exceeds height */
+  max-height: 400px; /* Set maximum height for the accordion panel */
+}
+
+.accordion-panel.active {
+  display: block;
+  max-width: 600px;
+}
+
+/* CSS for Settings Panel */
+.settings-popup {
+  max-height: 800px; /* Set maximum height for the settings panel */
+  overflow-y: auto; /* Enable vertical scrollbar if content exceeds height */
+}
+
+.info{
+  font-size: 16px;
+}
+
+.keyword-explanation-tooltip {
+  position: absolute;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px 10px;
+  z-index: 999;
+  max-width: 200px; /* Adjust as needed */
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  top: calc(60% + 5px); /* Position below the keyword button */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Center horizontally */
+}
+
+.keyword-button {
+  position: relative; /* Ensure tooltip position relative to keyword button */
+}
