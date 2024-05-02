@@ -20,8 +20,8 @@ function UserKeywords() {
     favorites: true,
   });
   const [crazyMode, setCrazyMode] = useState(false);
-  const hostname = "http://localhost:8081";
-  // const hostname = "https://scratchconnect-server.vercel.app";
+  // const hostname = "http://localhost:8081";
+  const hostname = "https://scratchconnect-server.vercel.app";
 
   const [userBio, setUserBio] = useState('');
   const [workingon, setWorkingon] = useState('');
