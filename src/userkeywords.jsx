@@ -42,7 +42,12 @@ function UserKeywords() {
   const handleRefreshClick = async (e) => {
     e.preventDefault();
     try {
-      const morekeywordsmessage = "Generate 5-8 more keywords and return them as structured JSON data of two keys: the first key should be 'keywords' with the value of that key being an array of these comma-separated string keywords. DO NOT number the list of keywords and ensure that the keys are all lower case. The second key should be 'explanations' with the value of that key being an array of strings, which are explanations for why each keyword was selected. There should be an explanation corresponding to each selected keyword. In these explanations, please be specific with what information was used and inferences that were made to generate the keyword. Don't include any other text besides the full json object.";
+      let morekeywordsmessage;
+      if (crazyMode) {
+        morekeywordsmessage = "Based on the data about the user, generate a diverse set of 5-8 more comma separated fun, interesting, exciting, and creative keywords that are the INVERSE or OPPOSITE of topics that the user is interested in for new projects to create. Return them as structured JSON data of two keys: the first key should be 'keywords' with the value of that key being an array of these comma-separated string keywords. DO NOT number the list of keywords and ensure that the keys are all lower case. The second key should be 'explanations' with the value of that key being an array of empty strings, with the number of empty strings equal to the number of keywords being returned. Don't include any other text besides the full json object. Please make sure to return 5-8 keywords.";
+      } else {
+        morekeywordsmessage = "Based on the data about the user, generate 5-8 more keywords and return them as structured JSON data of two keys: the first key should be 'keywords' with the value of that key being an array of these comma-separated string keywords. DO NOT number the list of keywords and ensure that the keys are all lower case. The second key should be 'explanations' with the value of that key being an array of strings, which are explanations for why each keyword was selected. There should be an explanation corresponding to each selected keyword. In these explanations, please be specific with what information was used and inferences that were made to generate the keyword. Don't include any other text besides the full json object.";
+      }
       // Append the specified message to messageHistory
       setMessageHistory([...messageHistory, { content: morekeywordsmessage, role: "user" }]);
       
@@ -57,6 +62,8 @@ function UserKeywords() {
       const chatGptResponse = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: chatPrompt,
+        presence_penalty: 0.8,
+        temperature: 1.3,
         response_format: { "type": "json_object" },
       });
   
@@ -132,15 +139,24 @@ function UserKeywords() {
         apiKey: process.env.REACT_APP_OPENAI_API_KEY || '',
         dangerouslyAllowBrowser: true,
       });
-      let promptEnding = '';
+      let systemMessage = '';
       if (crazyMode) {
-        promptEnding = 'Among the 5-8 comma separated keywords, please add some completely random keywords.';
+        systemMessage = `Considering the data given to you below, please return a diverse list of 5-8 comma separated fun, interesting and creative keywords that are the INVERSE or OPPOSITE of topics that the user might be interested in for new projects to create. Please do not include the keywords "scratch", "project","exploration", “art”, “animation”, “games”, “music”, “stories”, “tutorials”, or "explore". Generate these keywords as structured JSON data of two keys: the first key should be 'keywords' with the value of that key being an array of these comma-separated string keywords. DO NOT number the list of keywords and ensure that the keys are all lower case. The second key should be 'explanations' with the value of that key being an array of empty strings, with the number of empty strings equal to the number of keywords being returned. Don't include any other text besides the full json object.`;
+      } else {
+        systemMessage = `Considering the data given to you below, please return a list of 5-8 comma separated topic keywords that are topics that the user might be interested in for new projects to create. Please do not include the keywords "scratch", "project","exploration", “art”, “animation”, “games”, “music”, “stories”, “tutorials”, or "explore". Generate these keywords as structured JSON data of two keys: the first key should be 'keywords' with the value of that key being an array of these comma-separated string keywords. DO NOT number the list of keywords and ensure that the keys are all lower case. The second key should be 'explanations' with the value of that key being an array of strings, which are explanations for why each keyword was selected. There should be an explanation corresponding to each selected keyword. In these explanations, please be specific with what information was used and inferences that were made to generate the keyword. Don't include any other text besides the full json object.`;
+
       }
-  
+
+      const userDataMessage = `Here is the data for you to consider: ${selectedEntries.join(', ')}`;
+
       const messages = [
         {
+          role: 'system',
+          content: systemMessage,
+        },
+        {
           role: 'user',
-          content: `Considering the data given to you below, please return a list of 5-8 comma separated keywords that are topics that the user might be interested in for new projects to create. ${promptEnding} Please do not include the keywords "scratch", "project","exploration", “art”, “animation”, “games”, “music”, “stories”, “tutorials”, or "explore". Generate these keywords as structured JSON data of two keys: the first key should be 'keywords' with the value of that key being an array of these comma-separated string keywords. DO NOT number the list of keywords and ensure that the keys are all lower case. The second key should be 'explanations' with the value of that key being an array of strings, which are explanations for why each keyword was selected. There should be an explanation corresponding to each selected keyword. In these explanations, please be specific with what information was used and inferences that were made to generate the keyword. Don't include any other text besides the full json object. Here is the data for you to consider: ${selectedEntries.join(', ')}`,
+          content: userDataMessage,
         },
       ];
       console.log(messages);
@@ -211,6 +227,7 @@ function UserKeywords() {
   };
 
   const parseProjectsList = (projectsListString) => {
+    // console.log(projectsListString);
     // Split the projectsListString into individual projects using "title: " as a delimiter
     const projects = projectsListString.split('title: ').filter(entry => entry.trim() !== ''); // Filter out empty entries
     // Map over each project and convert it into an object
@@ -228,8 +245,9 @@ function UserKeywords() {
 
   return (
     <div>
+
       <form onSubmit={handleUsernameSubmit}>
-        <label htmlFor="username">Enter your Scratch username:</label>
+        <label htmlFor="username" className={!crazyMode ? 'black-text' : ''}>Enter your Scratch username:</label>
         <input
           id="username"
           type="text"
@@ -240,11 +258,10 @@ function UserKeywords() {
         <button type="submit">Submit</button>
       </form>
 
-      <div>
-      <div className="connect-header">
-        <h2>Connect</h2>
-      </div>
-        <div>
+        <div className={`${crazyMode ? 'inverted-colors' : ''} connect-header`}>
+          <h2>Connect</h2>
+        </div>
+        <div className={crazyMode ? 'inverted-colors' : ''}>
         {keywords.length > 0 && (
           <div>
             {keywords.map((keyword, index) => (
@@ -275,86 +292,12 @@ function UserKeywords() {
           </div>
         )}
         </div>
-      </div>
+      
 
       {showSettingsPanel && (
   <div>
-    <div className="settings-overlay" onClick={handleSeeInsideClick}></div>
-    {/* <div className="settings-popup">
-      <h6>Select what information you want to use to generate keywords:</h6>
-      <div className="checklist-item">
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedSettings.bio}
-            onChange={() => handleSettingToggle('bio')}
-          />
-          My Bio
-          <span className="info-icon" title={userBio}>﹖</span>
-        </label>
-      </div>
-      <div className="checklist-item">
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedSettings.workingOn}
-            onChange={() => handleSettingToggle('workingOn')}
-          />
-          What I'm Working On
-          <span className="info-icon" title={workingon}>﹖</span>
-        </label>
-      </div>
-      <div className="checklist-item">
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedSettings.projectsList}
-            onChange={() => handleSettingToggle('projectsList')}
-          />
-          Projects I've Created
-          <span className="info-icon" title={JSON.stringify(projectsList)}>﹖</span>
-        </label>
-      </div>
-      <div className="checklist-item">
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedSettings.favorites}
-            onChange={() => handleSettingToggle('favorites')}
-          />
-          Projects I've Favorited
-          <span className="info-icon" title={JSON.stringify(favorites)}>﹖</span>
-        </label>
-      </div>
-      <h6>Select the checkbox below to enable crazy mode!</h6>
-      <div className="checklist-item">
-        <label>
-          <input
-            type="checkbox"
-            checked={crazyMode}
-            onChange={handleCrazyModeToggle}
-          />
-          Crazy Mode
-          <span className="info-icon" title="This mode is intended to give you suggestions to explore new things!">﹖</span>
-        </label>
-      </div>
-      <div className="crazy-mode-image-container">
-          <a href="https://en.wikipedia.org/wiki/Recommender_system" target="_blank" rel="noopener noreferrer">
-            <img
-              className="crazy-mode-image"
-              src={scratchcatrec1}
-              alt="Scratch Cat"
-              onMouseOver={e => (e.currentTarget.src = scratchcatrec2)}
-              onMouseOut={e => (e.currentTarget.src = scratchcatrec1)}
-              style={{ width: '300px'}} // Adjust width and height here
-            />
-          </a>
-        </div>
-      <button className="purple-button" onClick={handleSaveSettingsClick}>
-        Save changes
-      </button>
-    </div> */}
-    <div className="settings-popup">
+    <div className={`${crazyMode ? 'inverted-colors' : ''} settings-overlay`} onClick={handleSeeInsideClick}></div>
+    <div className={`${crazyMode ? 'inverted-colors' : ''} settings-popup`}>
       <h6>Select what information you want to use to generate keywords:</h6>
       <div className="checklist-item">
         <label>
@@ -407,17 +350,31 @@ function UserKeywords() {
           See "Projects I've Created" Information
         </button>
         <div className={`accordion-panel ${accordionState.projectsList ? 'active' : ''}`}>
-          {parseProjectsList(projectsList).map((project, index) => (
-              <div key={index}>
-                  <span>Title: {project.title}</span>
-                  <br />
-                  <span>Description: <br /> <span dangerouslySetInnerHTML={{ __html: project.description }} style={{ fontSize: '14px' }} /></span>
-                  <br />
-                  <span>Instructions: <br /> <span dangerouslySetInnerHTML={{ __html: project.instructions }} style={{ fontSize: '12px' }} /></span>
-                  {index !== parseProjectsList(projectsList).length - 1 && <hr />} {/* Add divider line if it's not the last project */}
+        {userProjects.map((project, index) => (
+          <div key={index} style={{ textAlign: 'center' }}>
+            <a href={`https://scratch.mit.edu/projects/${project.id}`} target="_blank" rel="noopener noreferrer">
+              <img src={project.image} alt={project.title} style={{ width: '150px', height: 'auto', display: 'block', margin: '0 auto' }} />
+            </a>
+            <a href={`https://scratch.mit.edu/projects/${project.id}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <h5>{project.title}</h5>
+            </a>
+            {project.description && (
+              <div>
+                <h6>Description:</h6>
+                <span dangerouslySetInnerHTML={{ __html: project.description }} style={{ fontSize: '14px' }} />
               </div>
-          ))}
+            )}
+            {project.instructions && (
+              <div>
+                <h6>Instructions:</h6>
+                <span dangerouslySetInnerHTML={{ __html: project.instructions }} style={{ fontSize: '12px' }} />
+              </div>
+            )}
+            {index !== userProjects.length - 1 && <hr />} {/* Add divider line if it's not the last project */}
+          </div>
+        ))}
       </div>
+
       </div>
       <div className="checklist-item">
         <label>
@@ -435,19 +392,32 @@ function UserKeywords() {
         </button>
 
         <div className={`accordion-panel ${accordionState.favorites ? 'active' : ''}`}>
-          {parseProjectsList(favoritesList).map((project, index) => (
-            <div key={index}>
-              <span>Title: {project.title}</span>
-              <br />
-              <span>Description: <br /> <span dangerouslySetInnerHTML={{ __html: project.description }} style={{ fontSize: '14px' }} /></span>
-              <br />
-              <span>Instructions: <br /> <span dangerouslySetInnerHTML={{ __html: project.instructions }} style={{ fontSize: '12px' }} /></span>
-              {index !== parseProjectsList(projectsList).length - 1 && <hr />}
+          {favorites.map((project, index) => (
+            <div key={index} style={{ textAlign: 'center' }}>
+              <a href={`https://scratch.mit.edu/projects/${project.id}`} target="_blank" rel="noopener noreferrer">
+                <img src={project.image} alt={project.title} style={{ width: '150px', height: 'auto', display: 'block', margin: '0 auto' }} />
+              </a>
+              <a href={`https://scratch.mit.edu/projects/${project.id}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <h5>{project.title}</h5>
+              </a>
+              {project.description && (
+                <div>
+                  <h6>Description:</h6>
+                  <span dangerouslySetInnerHTML={{ __html: project.description }} style={{ fontSize: '14px' }} />
+                </div>
+              )}
+              {project.instructions && (
+                <div>
+                  <h6>Instructions:</h6>
+                  <span dangerouslySetInnerHTML={{ __html: project.instructions }} style={{ fontSize: '12px' }} />
+                </div>
+              )}
+              {index !== userProjects.length - 1 && <hr />} {/* Add divider line if it's not the last project */}
             </div>
           ))}
         </div>
       </div>
-      <h6>Select the checkbox below to enable crazy mode!</h6>
+      <h6>Select the checkbox below to enable opposite mode!</h6>
       <div className="checklist-item">
         <label>
           <input
@@ -455,7 +425,7 @@ function UserKeywords() {
             checked={crazyMode}
             onChange={handleCrazyModeToggle}
           />
-          Crazy Mode
+          Opposite Mode
           <span className="info-icon" title="This mode is intended to give you suggestions to explore new things!">﹖</span>
         </label>
       </div>
@@ -478,9 +448,8 @@ function UserKeywords() {
   </div>
 )}
 
-
       <div>
-        <h2>Projects</h2>
+      <h2 className={!crazyMode ? 'black-text' : ''}>Projects</h2>
         <div className="project-grid">
           {searchprojects.map((project, index) => (
             <div key={index} className="project-card">

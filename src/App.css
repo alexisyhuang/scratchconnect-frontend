@@ -130,6 +130,8 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   z-index: 1000;
+  max-height: 800px; /* Set maximum height for the settings panel */
+  overflow-y: auto; /* Enable vertical scrollbar if content exceeds height */
 }
 
 .settings-overlay {
@@ -256,18 +258,13 @@
   padding: 10px;
   display: none;
   overflow-y: auto; /* Enable vertical scrollbar if content exceeds height */
-  max-height: 400px; /* Set maximum height for the accordion panel */
+  max-height: 600px; /* Set maximum height for the accordion panel */
+  text-align: left;
 }
 
 .accordion-panel.active {
   display: block;
   max-width: 600px;
-}
-
-/* CSS for Settings Panel */
-.settings-popup {
-  max-height: 800px; /* Set maximum height for the settings panel */
-  overflow-y: auto; /* Enable vertical scrollbar if content exceeds height */
 }
 
 .info{
@@ -284,11 +281,19 @@
   max-width: 200px; /* Adjust as needed */
   font-size: 14px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  top: calc(60% + 5px); /* Position below the keyword button */
+  top: calc(30% + 5px); /* Position below the keyword button */
   left: 50%; /* Center horizontally */
   transform: translateX(-50%); /* Center horizontally */
 }
 
 .keyword-button {
   position: relative; /* Ensure tooltip position relative to keyword button */
+}
+
+.inverted-colors {
+  filter: invert(100%);
+}
+
+.inverted-colors .exclude-from-invert {
+  filter: none; /* Reset filter to default (no inversion) */
 }
